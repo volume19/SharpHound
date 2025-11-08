@@ -1,0 +1,1487 @@
+{
+  "plan_version": "1.0.0",
+  "project_context": {
+    "source_language": "C#",
+    "target_language": "Rust",
+    "project_name": "SharpHound",
+    "project_description": "Active Directory reconnaissance tool for BloodHound - collects AD domain data including users, groups, computers, trusts, permissions, and local admin rights",
+    "source_loc": 3706,
+    "source_files": 26,
+    "target_platforms": [
+      "x86_64-pc-windows-msvc",
+      "x86_64-unknown-linux-gnu"
+    ],
+    "security_classification": "Authorized security testing tool - used for legitimate AD assessments, penetration testing, and security audits"
+  },
+  "component_map": [
+    {
+      "source_file": "src/Sharphound.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "Program"
+      ],
+      "loc": 222,
+      "rust_module": "src/main.rs",
+      "description": "Entry point with CLI parsing, .NET version check, and collection orchestration",
+      "dependencies": [
+        "CommandLineParser",
+        "Windows Registry",
+        "System.DirectoryServices.Protocols"
+      ],
+      "platform_specific": true,
+      "notes": "Registry checks for .NET version can be removed in Rust; async main pattern"
+    },
+    {
+      "source_file": "src/Options.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "Options"
+      ],
+      "loc": 296,
+      "rust_module": "src/cli/options.rs",
+      "description": "Command-line options with validation and collection method resolution",
+      "dependencies": [
+        "CommandLine library"
+      ],
+      "platform_specific": false,
+      "notes": "Use clap with derive macros; implement validation in custom methods"
+    },
+    {
+      "source_file": "src/Client/Enums.cs",
+      "namespace": "Sharphound.Client",
+      "primary_types": [
+        "CollectionMethodOptions"
+      ],
+      "loc": 37,
+      "rust_module": "src/client/enums.rs",
+      "description": "Collection method enum with 25+ variants",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Simple enum with bitflags; use bitflags crate or manual impl"
+    },
+    {
+      "source_file": "src/Client/Flags.cs",
+      "namespace": "Sharphound.Client",
+      "primary_types": [
+        "Flags"
+      ],
+      "loc": 31,
+      "rust_module": "src/client/flags.rs",
+      "description": "Configuration flags struct",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Direct struct translation with bool fields"
+    },
+    {
+      "source_file": "src/Client/Context.cs",
+      "namespace": "Sharphound.Client",
+      "primary_types": [
+        "IContext",
+        "ContextUtils",
+        "FileExistsException"
+      ],
+      "loc": 85,
+      "rust_module": "src/client/context.rs",
+      "description": "Core context trait/interface defining shared state",
+      "dependencies": [
+        "Timer",
+        "ConcurrentDictionary"
+      ],
+      "platform_specific": false,
+      "notes": "Convert interface to trait; use Arc<Mutex<T>> for shared state; ConcurrentDictionary → DashMap or Arc<RwLock<HashMap>>"
+    },
+    {
+      "source_file": "src/Client/Links.cs",
+      "namespace": "Sharphound.Client",
+      "primary_types": [
+        "Links<T>"
+      ],
+      "loc": 29,
+      "rust_module": "src/client/links.rs",
+      "description": "Chain of Responsibility trait interface",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Generic trait with async methods; straightforward translation"
+    },
+    {
+      "source_file": "src/BaseContext.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "BaseContext"
+      ],
+      "loc": 168,
+      "rust_module": "src/context/base_context.rs",
+      "description": "Concrete context implementation with timing, caching, throttling",
+      "dependencies": [
+        "ILdapUtils",
+        "Timer",
+        "ConcurrentDictionary"
+      ],
+      "platform_specific": false,
+      "notes": "Struct implementing Context trait; use tokio::time for delays; Arc wrappers for shared state"
+    },
+    {
+      "source_file": "src/BasicLogger.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "BasicLogger"
+      ],
+      "loc": 55,
+      "rust_module": "src/logging/basic_logger.rs",
+      "description": "Console logger with verbosity levels",
+      "dependencies": [
+        "Microsoft.Extensions.Logging"
+      ],
+      "platform_specific": false,
+      "notes": "Use tracing or env_logger crate; implement log facade"
+    },
+    {
+      "source_file": "src/Extensions.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "Extensions (static)"
+      ],
+      "loc": 120,
+      "rust_module": "src/util/extensions.rs",
+      "description": "Extension methods for dictionaries, async enumerables, DNS resolution",
+      "dependencies": [
+        "System.Threading.Channels",
+        "LDAP"
+      ],
+      "platform_specific": false,
+      "notes": "Convert extension methods to trait implementations; use tokio channels for async streams"
+    },
+    {
+      "source_file": "src/EnumerationDomain.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "EnumerationDomain"
+      ],
+      "loc": 12,
+      "rust_module": "src/domain/enumeration_domain.rs",
+      "description": "Simple domain info struct",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Direct struct translation with serde derive"
+    },
+    {
+      "source_file": "src/JsonExtensions.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "CacheContractResolver",
+        "KindConvertor"
+      ],
+      "loc": 50,
+      "rust_module": "src/serialization/json_extensions.rs",
+      "description": "Custom JSON serialization for cache files",
+      "dependencies": [
+        "Newtonsoft.Json",
+        "Reflection"
+      ],
+      "platform_specific": false,
+      "notes": "Use serde custom serializers/deserializers; avoid reflection"
+    },
+    {
+      "source_file": "src/SharpLinks.cs",
+      "namespace": "Sharphound",
+      "primary_types": [
+        "SharpLinks"
+      ],
+      "loc": 361,
+      "rust_module": "src/links/sharp_links.rs",
+      "description": "Chain of Responsibility implementation - main workflow orchestration",
+      "dependencies": [
+        "LDAP",
+        "Forest/Domain APIs",
+        "WindowsIdentity"
+      ],
+      "platform_specific": true,
+      "notes": "Heavy async workflow; WindowsIdentity → windows-rs; Forest/Domain → custom LDAP queries"
+    },
+    {
+      "source_file": "src/Producers/BaseProducer.cs",
+      "namespace": "Sharphound.Producers",
+      "primary_types": [
+        "BaseProducer"
+      ],
+      "loc": 56,
+      "rust_module": "src/producers/base_producer.rs",
+      "description": "Abstract base for LDAP query producers",
+      "dependencies": [
+        "Channels"
+      ],
+      "platform_specific": false,
+      "notes": "Convert to trait with default methods; use tokio::sync::mpsc"
+    },
+    {
+      "source_file": "src/Producers/LdapProducer.cs",
+      "namespace": "Sharphound.Producers",
+      "primary_types": [
+        "LdapProducer"
+      ],
+      "loc": 244,
+      "rust_module": "src/producers/ldap_producer.rs",
+      "description": "Default LDAP query producer with paging and partitioning",
+      "dependencies": [
+        "LDAP paging",
+        "async"
+      ],
+      "platform_specific": false,
+      "notes": "Core LDAP logic; use ldap3 crate; implement paged result controls manually if needed"
+    },
+    {
+      "source_file": "src/Producers/ComputerFileProducer.cs",
+      "namespace": "Sharphound.Producers",
+      "primary_types": [
+        "ComputerFileProducer"
+      ],
+      "loc": 127,
+      "rust_module": "src/producers/computer_file_producer.rs",
+      "description": "Reads computer names from file and resolves to LDAP objects",
+      "dependencies": [
+        "File I/O",
+        "LDAP"
+      ],
+      "platform_specific": false,
+      "notes": "Async file reading with tokio::fs; stream processing"
+    },
+    {
+      "source_file": "src/Producers/StealthProducer.cs",
+      "namespace": "Sharphound.Producers",
+      "primary_types": [
+        "StealthProducer"
+      ],
+      "loc": 192,
+      "rust_module": "src/producers/stealth_producer.rs",
+      "description": "Stealth collection targeting specific servers from user attributes",
+      "dependencies": [
+        "LDAP"
+      ],
+      "platform_specific": false,
+      "notes": "Reduces enumeration noise for authorized testing; builds minimal target list"
+    },
+    {
+      "source_file": "src/Producers/StealthContext.cs",
+      "namespace": "Sharphound.Producers",
+      "primary_types": [
+        "StealthContext"
+      ],
+      "loc": 33,
+      "rust_module": "src/producers/stealth_context.rs",
+      "description": "Global stealth target cache",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Static cache → lazy_static with Mutex or RwLock"
+    },
+    {
+      "source_file": "src/Runtime/CollectionTask.cs",
+      "namespace": "Sharphound.Runtime",
+      "primary_types": [
+        "CollectionTask"
+      ],
+      "loc": 153,
+      "rust_module": "src/runtime/collection_task.rs",
+      "description": "Main collection orchestration with producer-consumer pattern",
+      "dependencies": [
+        "Channels",
+        "async tasks"
+      ],
+      "platform_specific": false,
+      "notes": "Core async coordination; bounded/unbounded channels with tokio"
+    },
+    {
+      "source_file": "src/Runtime/LDAPConsumer.cs",
+      "namespace": "Sharphound.Runtime",
+      "primary_types": [
+        "LDAPConsumer"
+      ],
+      "loc": 57,
+      "rust_module": "src/runtime/ldap_consumer.rs",
+      "description": "Consumes LDAP search results",
+      "dependencies": [
+        "Stopwatch"
+      ],
+      "platform_specific": false,
+      "notes": "Use std::time::Instant for timing"
+    },
+    {
+      "source_file": "src/Runtime/ObjectProcessors.cs",
+      "namespace": "Sharphound.Runtime",
+      "primary_types": [
+        "ObjectProcessors"
+      ],
+      "loc": 929,
+      "rust_module": "src/runtime/object_processors.rs",
+      "description": "LARGEST FILE - Central object processing for all AD object types (User, Computer, Group, GPO, Domain, OU, CertTemplate, etc.)",
+      "dependencies": [
+        "SharpHoundCommonLib processors",
+        "SharpHoundRPC",
+        "Windows APIs"
+      ],
+      "platform_specific": true,
+      "notes": "CRITICAL BLOCKER: Depends heavily on SharpHoundCommonLib (external) and SharpHoundRPC (Windows APIs). Requires porting or FFI wrappers for ~15 processor types. This is the core AD enumeration logic."
+    },
+    {
+      "source_file": "src/Runtime/OutputWriter.cs",
+      "namespace": "Sharphound.Runtime",
+      "primary_types": [
+        "OutputWriter"
+      ],
+      "loc": 228,
+      "rust_module": "src/runtime/output_writer.rs",
+      "description": "JSON output writer with ZIP compression and status updates",
+      "dependencies": [
+        "SharpZipLib",
+        "Timer",
+        "Process memory APIs"
+      ],
+      "platform_specific": true,
+      "notes": "Use zip crate for compression; sysinfo crate for memory stats; tokio timers"
+    },
+    {
+      "source_file": "src/Runtime/LoopManager.cs",
+      "namespace": "Sharphound.Runtime",
+      "primary_types": [
+        "LoopManager"
+      ],
+      "loc": 125,
+      "rust_module": "src/runtime/loop_manager.rs",
+      "description": "Loop collection execution with intervals",
+      "dependencies": [
+        "Timer",
+        "async"
+      ],
+      "platform_specific": false,
+      "notes": "tokio interval timers"
+    },
+    {
+      "source_file": "src/Runtime/ClientHelpers.cs",
+      "namespace": "Sharphound.Runtime",
+      "primary_types": [
+        "ClientHelpers"
+      ],
+      "loc": 53,
+      "rust_module": "src/runtime/client_helpers.rs",
+      "description": "Utility functions for filenames and machine ID",
+      "dependencies": [
+        "Windows Registry"
+      ],
+      "platform_specific": true,
+      "notes": "MachineGuid from registry → windows-rs or generate UUID; cross-platform fallback needed"
+    },
+    {
+      "source_file": "src/Writers/BaseWriter.cs",
+      "namespace": "Sharphound.Writers",
+      "primary_types": [
+        "BaseWriter<T>"
+      ],
+      "loc": 44,
+      "rust_module": "src/writers/base_writer.rs",
+      "description": "Abstract writer with batching (flush every 30 items)",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Generic trait with batching logic"
+    },
+    {
+      "source_file": "src/Writers/JsonDataWriter.cs",
+      "namespace": "Sharphound.Writers",
+      "primary_types": [
+        "JsonDataWriter<T>"
+      ],
+      "loc": 119,
+      "rust_module": "src/writers/json_data_writer.rs",
+      "description": "Type-safe JSON file writer with metadata",
+      "dependencies": [
+        "Newtonsoft.Json"
+      ],
+      "platform_specific": false,
+      "notes": "serde_json for serialization; async file I/O with tokio"
+    },
+    {
+      "source_file": "src/Writers/CompStatusWriter.cs",
+      "namespace": "Sharphound.Writers",
+      "primary_types": [
+        "CompStatusWriter"
+      ],
+      "loc": 80,
+      "rust_module": "src/writers/comp_status_writer.rs",
+      "description": "CSV writer for computer status tracking",
+      "dependencies": [],
+      "platform_specific": false,
+      "notes": "Simple CSV output with async writes"
+    }
+  ],
+  "public_api_map": [
+    {
+      "csharp_type": "Program.Main(string[] args)",
+      "rust_signature": "#[tokio::main] async fn main() -> Result<(), Box<dyn std::error::Error>>",
+      "ownership_note": "Args owned by main; pass &str slices to parser"
+    },
+    {
+      "csharp_type": "Options (class with properties)",
+      "rust_signature": "#[derive(Parser, Debug, Clone)] pub struct Options { ... }",
+      "ownership_note": "Owned struct; clone for shared access or use Arc"
+    },
+    {
+      "csharp_type": "IContext (interface)",
+      "rust_signature": "pub trait Context: Send + Sync { ... }",
+      "ownership_note": "Trait with lifetime parameters for borrows; shared state via Arc<RwLock<T>>"
+    },
+    {
+      "csharp_type": "BaseContext (class implementing IContext, IDisposable)",
+      "rust_signature": "pub struct BaseContext { ... } impl Context for BaseContext { ... } impl Drop for BaseContext { ... }",
+      "ownership_note": "Struct with owned fields; implement Drop for cleanup"
+    },
+    {
+      "csharp_type": "Links<T> (generic interface)",
+      "rust_signature": "#[async_trait] pub trait Links<T: Context> { async fn initialize(&self, ctx: T) -> Result<T, LinkError>; ... }",
+      "ownership_note": "Async trait; context passed by value for chain pattern; use async_trait crate"
+    },
+    {
+      "csharp_type": "CollectionMethodOptions (enum)",
+      "rust_signature": "#[derive(Debug, Clone, Copy, PartialEq, Eq)] pub enum CollectionMethodOptions { None, Group, Session, ... }",
+      "ownership_note": "Copy type; use bitflags for flag operations"
+    },
+    {
+      "csharp_type": "BaseProducer (abstract class)",
+      "rust_signature": "#[async_trait] pub trait Producer { async fn produce(&self, ctx: &Context, tx: Sender<LdapObject>) -> Result<(), ProducerError>; }",
+      "ownership_note": "Trait with async methods; borrows context, owns sender"
+    },
+    {
+      "csharp_type": "JsonDataWriter<T> (generic class)",
+      "rust_signature": "pub struct JsonDataWriter<T: Serialize> { ... } impl<T: Serialize> JsonDataWriter<T> { pub async fn write(&mut self, data: &T) -> Result<(), WriteError> }",
+      "ownership_note": "Mutable writer; borrows data for serialization"
+    },
+    {
+      "csharp_type": "Channel<T> (System.Threading.Channels)",
+      "rust_signature": "tokio::sync::mpsc::{Sender<T>, Receiver<T>} or tokio::sync::mpsc::unbounded_channel<T>()",
+      "ownership_note": "Owned senders/receivers; clone senders for multiple producers"
+    },
+    {
+      "csharp_type": "ConcurrentDictionary<K,V>",
+      "rust_signature": "Arc<DashMap<K, V>> or Arc<RwLock<HashMap<K, V>>>",
+      "ownership_note": "Shared ownership via Arc; interior mutability via DashMap or RwLock"
+    },
+    {
+      "csharp_type": "ILogger (Microsoft.Extensions.Logging)",
+      "rust_signature": "tracing::Subscriber or log::Log trait",
+      "ownership_note": "Global logger or scoped spans; use Arc for shared logger instances"
+    }
+  ],
+  "tricky_patterns": [
+    {
+      "pattern": "P/Invoke and Windows APIs",
+      "locations": [
+        "src/Sharphound.cs:44 (Registry.GetValue)",
+        "src/Runtime/ClientHelpers.cs:37-46 (RegistryKey.OpenBaseKey)",
+        "src/SharpLinks.cs:128 (WindowsIdentity.GetCurrent)",
+        "src/Runtime/OutputWriter.cs:94 (Process.GetCurrentProcess().PrivateMemorySize64)",
+        "SharpHoundRPC library (external - all RPC/SMB/API calls)"
+      ],
+      "mitigation": "Use windows-rs crate for Windows APIs with #[cfg(windows)] guards. For cross-platform, provide trait abstractions with platform-specific implementations. Registry access can use winreg crate. Process info via sysinfo crate (cross-platform).",
+      "risk_level": "high",
+      "notes": "SharpHoundRPC is a major dependency containing Windows-only RPC/SMB/Registry/LSA APIs. Either port to Rust with FFI or use existing Rust Windows bindings."
+    },
+    {
+      "pattern": "Reflection",
+      "locations": [
+        "src/JsonExtensions.cs (CacheContractResolver uses reflection for property filtering)"
+      ],
+      "mitigation": "Replace reflection-based JSON serialization with explicit serde derives and custom serializers. Use serde field attributes for filtering.",
+      "risk_level": "medium",
+      "notes": "Avoid runtime reflection in Rust; use compile-time derives and macros"
+    },
+    {
+      "pattern": "Dynamic typing and object",
+      "locations": [
+        "src/Client/Context.cs:23-26 (Dictionary<string, object>)",
+        "Multiple locations with dynamic property access"
+      ],
+      "mitigation": "Use strongly-typed enums or serde_json::Value for dynamic data. Prefer trait objects (Box<dyn Trait>) or enums over stringly-typed data.",
+      "risk_level": "medium",
+      "notes": "Rust's type system requires explicit handling; use serde's untagged enums or Value for truly dynamic data"
+    },
+    {
+      "pattern": "Async/await and Task<T>",
+      "locations": [
+        "Nearly all methods in SharpLinks.cs",
+        "All Producer classes",
+        "Runtime/ directory (all files)"
+      ],
+      "mitigation": "Use tokio as async runtime. async fn returns Result<T, E>. Task<T> → impl Future<Output = T> or explicit Future types. Use tokio::spawn for background tasks.",
+      "risk_level": "medium",
+      "notes": "Rust async is lower-level; requires explicit runtime. Use async_trait for trait methods."
+    },
+    {
+      "pattern": "System.Threading.Channels",
+      "locations": [
+        "src/Runtime/CollectionTask.cs (bounded/unbounded channels)",
+        "All Producer classes",
+        "OutputWriter"
+      ],
+      "mitigation": "Use tokio::sync::mpsc for MPSC channels. Channel::CreateBounded(n) → mpsc::channel(n); Channel::CreateUnbounded() → mpsc::unbounded_channel(). Similar semantics.",
+      "risk_level": "low",
+      "notes": "Nearly 1:1 mapping between .NET Channels and tokio mpsc"
+    },
+    {
+      "pattern": "LDAP protocol and DirectoryServices",
+      "locations": [
+        "All Producer classes",
+        "SharpLinks.cs (Forest/Domain enumeration)",
+        "SharpHoundCommonLib (external library - core LDAP logic)"
+      ],
+      "mitigation": "Use ldap3 crate for LDAP protocol. Implement paged result controls manually (RFC 2696). Active Directory-specific queries require custom LDAP filter building. May need to port SharpHoundCommonLib LDAP utilities.",
+      "risk_level": "high",
+      "notes": "LDAP is standardized but AD-specific features (e.g., Forest/Domain APIs, AdminSDHolder) require custom implementation"
+    },
+    {
+      "pattern": "AppDomain and Assembly loading",
+      "locations": [
+        "Not used in SharpHound core (PowerShell wrapper uses reflection to call InvokeSharpHound)"
+      ],
+      "mitigation": "Not applicable for Rust port. PowerShell wrapper would use native library loading or separate CLI invocation.",
+      "risk_level": "low",
+      "notes": "No equivalent needed; Rust doesn't have app domains"
+    },
+    {
+      "pattern": "Exception-based error handling",
+      "locations": [
+        "Throughout codebase (try-catch blocks)"
+      ],
+      "mitigation": "Replace with Result<T, E> pattern. Use thiserror crate for custom error types with context. Implement std::error::Error trait. Use ? operator for propagation.",
+      "risk_level": "low",
+      "notes": "Rust's Result type is more explicit; define error enums per module"
+    },
+    {
+      "pattern": "IDisposable and resource cleanup",
+      "locations": [
+        "src/BaseContext.cs (implements IDisposable)",
+        "File handles throughout",
+        "Timer objects"
+      ],
+      "mitigation": "Implement Drop trait for cleanup. Use RAII pattern (resources in struct fields). tokio::fs handles are async Drop. Timers auto-cleanup when dropped.",
+      "risk_level": "low",
+      "notes": "Rust's ownership makes cleanup automatic; explicit Drop for manual cleanup"
+    },
+    {
+      "pattern": "Nullable reference types",
+      "locations": [
+        "Throughout (string?, Options with Default = null)"
+      ],
+      "mitigation": "Use Option<T> for nullable types. String? → Option<String> or Option<&str>. Default values in clap use Option with default_value.",
+      "risk_level": "low",
+      "notes": "Rust's Option is more explicit than C# nullability"
+    },
+    {
+      "pattern": "Windows Identity and Security",
+      "locations": [
+        "src/SharpLinks.cs:128 (WindowsIdentity.GetCurrent)"
+      ],
+      "mitigation": "Use windows-rs crate: windows::Win32::Security::GetUserName or GetTokenInformation. Wrap in #[cfg(windows)]; provide fallback for Linux (getuid/geteuid).",
+      "risk_level": "medium",
+      "notes": "Platform-specific; requires conditional compilation"
+    },
+    {
+      "pattern": "Security Descriptor and ACL parsing",
+      "locations": [
+        "src/Runtime/ObjectProcessors.cs (ACLProcessor from SharpHoundCommonLib)"
+      ],
+      "mitigation": "Complex binary format parsing. Use windows-rs for SECURITY_DESCRIPTOR APIs on Windows. For cross-platform, implement SDDL parser or binary SD parser. Requires deep understanding of Windows security model.",
+      "risk_level": "high",
+      "notes": "Critical for ACL collection; may require significant custom parsing code or FFI"
+    },
+    {
+      "pattern": "Forest and Domain enumeration",
+      "locations": [
+        "src/SharpLinks.cs:178-198 (Forest.GetCurrentForest, Forest.GetAllTrustRelationships)"
+      ],
+      "mitigation": "System.DirectoryServices.ActiveDirectory wraps complex LDAP queries. Must reimplement using raw LDAP queries to configuration/schema naming contexts. Requires LDAP knowledge of AD forest topology.",
+      "risk_level": "high",
+      "notes": "No Rust equivalent; requires manual LDAP implementation"
+    },
+    {
+      "pattern": "Concurrent collections",
+      "locations": [
+        "src/BaseContext.cs:84 (ConcurrentDictionary<string, string>)",
+        "src/Runtime/ObjectProcessors.cs:42 (ConcurrentDictionary per-domain registry processors)"
+      ],
+      "mitigation": "Use DashMap crate (lock-free concurrent HashMap) or Arc<RwLock<HashMap>>. DashMap preferred for high-concurrency scenarios. RwLock for simple cases.",
+      "risk_level": "low",
+      "notes": "DashMap provides similar performance to ConcurrentDictionary"
+    }
+  ],
+  "prioritized_files": [
+    {
+      "order": 1,
+      "file": "src/Client/Enums.cs",
+      "rationale": "Simple enum, no dependencies, foundational type"
+    },
+    {
+      "order": 2,
+      "file": "src/Client/Flags.cs",
+      "rationale": "Simple struct, no dependencies, used everywhere"
+    },
+    {
+      "order": 3,
+      "file": "src/EnumerationDomain.cs",
+      "rationale": "Simple data struct, minimal dependencies"
+    },
+    {
+      "order": 4,
+      "file": "src/BasicLogger.cs",
+      "rationale": "Logging infrastructure needed early; small file"
+    },
+    {
+      "order": 5,
+      "file": "src/Client/Context.cs",
+      "rationale": "Core trait definition; needed before implementations"
+    },
+    {
+      "order": 6,
+      "file": "src/Client/Links.cs",
+      "rationale": "Chain of Responsibility trait; needed for workflow"
+    },
+    {
+      "order": 7,
+      "file": "src/Options.cs",
+      "rationale": "CLI parsing; can be developed with basic types in place"
+    },
+    {
+      "order": 8,
+      "file": "src/Extensions.cs",
+      "rationale": "Utility functions; useful for later modules"
+    },
+    {
+      "order": 9,
+      "file": "src/JsonExtensions.cs",
+      "rationale": "Serialization setup; needed for I/O operations"
+    },
+    {
+      "order": 10,
+      "file": "src/BaseContext.cs",
+      "rationale": "Context implementation; depends on trait and utilities"
+    },
+    {
+      "order": 11,
+      "file": "src/Writers/BaseWriter.cs",
+      "rationale": "Writer trait/base; needed before concrete writers"
+    },
+    {
+      "order": 12,
+      "file": "src/Writers/CompStatusWriter.cs",
+      "rationale": "Simple CSV writer; good test of writer pattern"
+    },
+    {
+      "order": 13,
+      "file": "src/Writers/JsonDataWriter.cs",
+      "rationale": "JSON writer; needed for output"
+    },
+    {
+      "order": 14,
+      "file": "src/Runtime/ClientHelpers.cs",
+      "rationale": "Small utility; introduces platform-specific code patterns"
+    },
+    {
+      "order": 15,
+      "file": "src/Producers/StealthContext.cs",
+      "rationale": "Simple global cache; small scope"
+    },
+    {
+      "order": 16,
+      "file": "src/Producers/BaseProducer.cs",
+      "rationale": "Producer trait; needed before concrete producers"
+    },
+    {
+      "order": 17,
+      "file": "src/Producers/ComputerFileProducer.cs",
+      "rationale": "File-based producer; simpler than LDAP, good for testing channel pattern"
+    },
+    {
+      "order": 18,
+      "file": "src/Producers/LdapProducer.cs",
+      "rationale": "Core LDAP logic; CRITICAL - requires ldap3 integration"
+    },
+    {
+      "order": 19,
+      "file": "src/Producers/StealthProducer.cs",
+      "rationale": "Builds on LDAP producer; specialized targeting logic"
+    },
+    {
+      "order": 20,
+      "file": "src/Runtime/LDAPConsumer.cs",
+      "rationale": "Small consumer logic; bridges producer and processor"
+    },
+    {
+      "order": 21,
+      "file": "src/Runtime/CollectionTask.cs",
+      "rationale": "Producer-consumer orchestration; complex async coordination"
+    },
+    {
+      "order": 22,
+      "file": "src/Runtime/OutputWriter.cs",
+      "rationale": "Output coordination with ZIP; complex I/O and compression"
+    },
+    {
+      "order": 23,
+      "file": "src/Runtime/LoopManager.cs",
+      "rationale": "Loop logic; depends on collection task"
+    },
+    {
+      "order": 24,
+      "file": "src/SharpLinks.cs",
+      "rationale": "Main workflow implementation; depends on most other components"
+    },
+    {
+      "order": 25,
+      "file": "src/Sharphound.cs",
+      "rationale": "Entry point; integrates all components"
+    },
+    {
+      "order": 26,
+      "file": "src/Runtime/ObjectProcessors.cs",
+      "rationale": "LAST - Largest file, depends on external SharpHoundCommonLib/RPC which must be ported separately or wrapped via FFI"
+    }
+  ],
+  "external_dependencies": {
+    "critical_blockers": [
+      {
+        "name": "SharpHoundCommonLib",
+        "version": "4.5.0",
+        "purpose": "Core LDAP utilities, processors (ACL, Group, Computer, Domain, etc.), Active Directory object models, security descriptor parsing",
+        "loc_estimate": "5000+",
+        "rust_strategy": "Must port or wrap. Contains ~15 processor types (ACLProcessor, GroupProcessor, ComputerSessionProcessor, etc.). Recommend creating separate 'sharphound-common' Rust crate.",
+        "priority": "CRITICAL"
+      },
+      {
+        "name": "SharpHoundRPC",
+        "version": "4.5.0",
+        "purpose": "Windows RPC/SMB calls: NetSessionEnum, NetWkstaUserEnum, Registry APIs, SAM APIs, LSA APIs, Certificate Services",
+        "loc_estimate": "3000+",
+        "rust_strategy": "Platform-specific Windows-only. Use windows-rs FFI bindings or port to native Rust with winapi/windows-sys. Consider 'sharphound-rpc' crate.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "standard_libraries": [
+      {
+        "csharp": "System.DirectoryServices.Protocols",
+        "rust_equivalent": "ldap3 crate",
+        "notes": "LDAP protocol client; supports SASL, TLS, paging"
+      },
+      {
+        "csharp": "System.DirectoryServices.ActiveDirectory",
+        "rust_equivalent": "Custom LDAP queries",
+        "notes": "No direct equivalent; must query AD schema/config via LDAP"
+      },
+      {
+        "csharp": "System.Threading.Channels",
+        "rust_equivalent": "tokio::sync::mpsc",
+        "notes": "Nearly identical semantics"
+      },
+      {
+        "csharp": "Microsoft.Win32.Registry",
+        "rust_equivalent": "winreg crate (#[cfg(windows)])",
+        "notes": "Windows-only; need cross-platform fallback"
+      },
+      {
+        "csharp": "System.Security.Principal.WindowsIdentity",
+        "rust_equivalent": "windows-rs or nix crate",
+        "notes": "Platform-specific identity APIs"
+      }
+    ]
+  },
+  "tests_spec": [
+    {
+      "test_id": "T001",
+      "module": "cli/options",
+      "description": "Command-line parsing with all option combinations",
+      "inputs": [
+        "--collectionmethods All",
+        "-c Group,Session -d example.com",
+        "--stealth --ldapfilter (adminCount=1)"
+      ],
+      "expected_outputs": "Parsed Options struct with correct fields; validation errors for invalid combos",
+      "fixtures": []
+    },
+    {
+      "test_id": "T002",
+      "module": "client/enums",
+      "description": "CollectionMethodOptions bitflag operations",
+      "inputs": [
+        "CollectionMethod::Default | CollectionMethod::ACL",
+        "Stealth filtering removes LoggedOn/LocalAdmin"
+      ],
+      "expected_outputs": "Correct flag combinations; stealth mode adds GPOLocalGroup",
+      "fixtures": []
+    },
+    {
+      "test_id": "T003",
+      "module": "context/base_context",
+      "description": "Context initialization, cache path resolution, filename generation",
+      "inputs": [
+        "OutputDirectory=/tmp/test, OutputPrefix=test, RandomFilenames=false"
+      ],
+      "expected_outputs": "Correct paths: /tmp/test/test_<timestamp>_<type>.json",
+      "fixtures": []
+    },
+    {
+      "test_id": "T004",
+      "module": "context/base_context",
+      "description": "Throttle and jitter delay calculation",
+      "inputs": [
+        "Throttle=100ms, Jitter=25%"
+      ],
+      "expected_outputs": "Delay between 75ms-125ms",
+      "fixtures": []
+    },
+    {
+      "test_id": "T005",
+      "module": "serialization/json_extensions",
+      "description": "Custom JSON serialization for cache",
+      "inputs": [
+        "Cache struct with ObjectID, properties"
+      ],
+      "expected_outputs": "JSON with correct field filtering and custom converters",
+      "fixtures": [
+        "sample_cache.json"
+      ]
+    },
+    {
+      "test_id": "T006",
+      "module": "writers/json_data_writer",
+      "description": "JSON writer with batching (flush every 30 items)",
+      "inputs": [
+        "Array of 100 User objects"
+      ],
+      "expected_outputs": "JSON file with metadata, version=6, correct count",
+      "fixtures": []
+    },
+    {
+      "test_id": "T007",
+      "module": "writers/comp_status_writer",
+      "description": "CSV writer for computer status",
+      "inputs": [
+        "CSVComputerStatus{computer: DC01, task: Session, status: Success}"
+      ],
+      "expected_outputs": "CSV: ComputerName,Task,Status,ObjectID",
+      "fixtures": []
+    },
+    {
+      "test_id": "T008",
+      "module": "producers/computer_file_producer",
+      "description": "Read computer names from file and resolve",
+      "inputs": [
+        "File with: DC01.example.com\\nWORKSTATION1"
+      ],
+      "expected_outputs": "Channel receives resolved LDAP objects",
+      "fixtures": [
+        "computers.txt"
+      ]
+    },
+    {
+      "test_id": "T009",
+      "module": "producers/ldap_producer",
+      "description": "LDAP query with paging (page size 500)",
+      "inputs": [
+        "Mock LDAP server with 1500 objects"
+      ],
+      "expected_outputs": "3 paged queries, all objects retrieved",
+      "fixtures": [
+        "mock_ldap_data.json"
+      ]
+    },
+    {
+      "test_id": "T010",
+      "module": "producers/ldap_producer",
+      "description": "LDAP query partitioning (256 chunks via objectguid)",
+      "inputs": [
+        "PartitionLdapQueries=true"
+      ],
+      "expected_outputs": "256 separate LDAP queries with objectguid range filters",
+      "fixtures": []
+    },
+    {
+      "test_id": "T011",
+      "module": "producers/stealth_producer",
+      "description": "Stealth mode target list from user homedirectory attributes",
+      "inputs": [
+        "Mock LDAP with users having homedirectory=\\\\\\\\server1\\\\share"
+      ],
+      "expected_outputs": "Target list contains only 'server1', not all domain computers",
+      "fixtures": [
+        "stealth_ldap_data.json"
+      ]
+    },
+    {
+      "test_id": "T012",
+      "module": "runtime/collection_task",
+      "description": "Producer-consumer pattern with bounded channel (capacity 1000)",
+      "inputs": [
+        "Producer sends 2000 objects, 50 consumer threads"
+      ],
+      "expected_outputs": "All objects processed, no deadlock, correct backpressure",
+      "fixtures": []
+    },
+    {
+      "test_id": "T013",
+      "module": "runtime/output_writer",
+      "description": "ZIP creation with 13 JSON files and optional password",
+      "inputs": [
+        "13 data types collected, ZipPassword='test123'"
+      ],
+      "expected_outputs": "ZIP file with password, contains all JSON files, valid structure",
+      "fixtures": []
+    },
+    {
+      "test_id": "T014",
+      "module": "runtime/loop_manager",
+      "description": "Loop collection with interval (duration=5min, interval=30sec)",
+      "inputs": [
+        "LoopDuration=5min, LoopInterval=30sec"
+      ],
+      "expected_outputs": "10 collection cycles, separate ZIP files with timestamps",
+      "fixtures": []
+    },
+    {
+      "test_id": "T015",
+      "module": "links/sharp_links",
+      "description": "Chain of Responsibility workflow execution",
+      "inputs": [
+        "Context with valid LDAP config"
+      ],
+      "expected_outputs": "All chain methods execute in order: Initialize → TestConnection → SetSessionUserName → ... → Finish",
+      "fixtures": []
+    },
+    {
+      "test_id": "T016",
+      "module": "integration",
+      "description": "End-to-end collection with mock LDAP (DCOnly mode)",
+      "inputs": [
+        "Mock AD with 10 users, 5 groups, 2 DCs, --collectionmethods DCOnly"
+      ],
+      "expected_outputs": "ZIP with users.json, groups.json, domains.json, correct relationship data",
+      "fixtures": [
+        "mock_ad_complete.json"
+      ]
+    },
+    {
+      "test_id": "T017",
+      "module": "runtime/client_helpers",
+      "description": "Machine ID generation (Windows: registry, Linux: /etc/machine-id or UUID)",
+      "inputs": [
+        "Platform-specific"
+      ],
+      "expected_outputs": "Base64 encoded machine identifier",
+      "fixtures": []
+    },
+    {
+      "test_id": "T018",
+      "module": "extensions",
+      "description": "DNS name resolution from LDAP entry",
+      "inputs": [
+        "LDAP entry with dNSHostName attribute"
+      ],
+      "expected_outputs": "Resolved DNS name string",
+      "fixtures": []
+    }
+  ],
+  "verification_commands": [
+    {
+      "phase": "setup",
+      "command": "rustup target add x86_64-pc-windows-msvc x86_64-unknown-linux-gnu",
+      "description": "Install cross-compilation targets"
+    },
+    {
+      "phase": "setup",
+      "command": "cargo install cargo-audit cargo-deny",
+      "description": "Install security audit tools"
+    },
+    {
+      "phase": "build_linux",
+      "command": "cargo build --workspace --target x86_64-unknown-linux-gnu",
+      "expected_result": "exit code 0, no warnings",
+      "notes": "May fail if Windows-only code not properly gated with #[cfg(windows)]"
+    },
+    {
+      "phase": "build_windows",
+      "command": "cargo build --workspace --target x86_64-pc-windows-msvc",
+      "expected_result": "exit code 0, no warnings",
+      "notes": "Requires cross-compilation setup or Windows host"
+    },
+    {
+      "phase": "test",
+      "command": "cargo test --workspace --all-features",
+      "expected_result": "All tests pass",
+      "notes": "Run on both Linux and Windows if possible"
+    },
+    {
+      "phase": "test_unit",
+      "command": "cargo test --lib",
+      "expected_result": "All unit tests pass"
+    },
+    {
+      "phase": "test_integration",
+      "command": "cargo test --test '*'",
+      "expected_result": "All integration tests pass"
+    },
+    {
+      "phase": "lint",
+      "command": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+      "expected_result": "No clippy warnings"
+    },
+    {
+      "phase": "format",
+      "command": "cargo fmt --check",
+      "expected_result": "Code is formatted"
+    },
+    {
+      "phase": "security",
+      "command": "cargo audit",
+      "expected_result": "No vulnerabilities in dependencies"
+    },
+    {
+      "phase": "security",
+      "command": "cargo deny check",
+      "expected_result": "No denied licenses or security issues"
+    },
+    {
+      "phase": "build_release",
+      "command": "cargo build --release --target x86_64-pc-windows-msvc",
+      "expected_result": "Optimized binary created"
+    },
+    {
+      "phase": "binary_check",
+      "command": "ls -lh target/release/sharphound && file target/release/sharphound",
+      "expected_result": "Verify binary size and type"
+    },
+    {
+      "phase": "functional_test",
+      "command": "./target/release/sharphound --help",
+      "expected_result": "Help output matches C# version options"
+    },
+    {
+      "phase": "functional_test",
+      "command": "./target/release/sharphound --collectionmethods DCOnly --domain example.com --memcache",
+      "expected_result": "Runs without errors (or expected LDAP connection error if no domain)",
+      "notes": "Requires real AD environment or mock LDAP for full functional test"
+    }
+  ],
+  "rust_crate_recommendations": [
+    {
+      "crate": "clap",
+      "version": "~4.5",
+      "purpose": "CLI argument parsing with derive macros",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Most popular Rust CLI parser; excellent error messages; derive API matches CommandLineParser ergonomics",
+      "trust": "Maintained by clap-rs org, 15M+ downloads, well-audited"
+    },
+    {
+      "crate": "tokio",
+      "version": "~1.40",
+      "features": [
+        "full"
+      ],
+      "purpose": "Async runtime, channels, timers, file I/O",
+      "license": "MIT",
+      "justification": "Industry standard async runtime; required for async/await; provides mpsc channels equivalent to System.Threading.Channels",
+      "trust": "Maintained by Tokio project, 50M+ downloads, production-ready"
+    },
+    {
+      "crate": "async-trait",
+      "version": "~0.1",
+      "purpose": "Async methods in traits",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Required for async trait methods until Rust stabilizes native async traits",
+      "trust": "By dtolnay (serde author), 40M+ downloads"
+    },
+    {
+      "crate": "serde",
+      "version": "~1.0",
+      "features": [
+        "derive"
+      ],
+      "purpose": "Serialization framework",
+      "license": "MIT OR Apache-2.0",
+      "justification": "De-facto standard for serialization; replaces Newtonsoft.Json",
+      "trust": "Core Rust ecosystem crate, 150M+ downloads"
+    },
+    {
+      "crate": "serde_json",
+      "version": "~1.0",
+      "purpose": "JSON serialization",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Standard JSON library for Rust; fast and well-tested",
+      "trust": "Same maintainer as serde, 120M+ downloads"
+    },
+    {
+      "crate": "thiserror",
+      "version": "~1.0",
+      "purpose": "Error type derivation",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Simplifies custom error types; implements std::error::Error",
+      "trust": "By dtolnay, 80M+ downloads"
+    },
+    {
+      "crate": "anyhow",
+      "version": "~1.0",
+      "purpose": "Application-level error handling",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Convenient for error propagation in main application code",
+      "trust": "By dtolnay, 60M+ downloads"
+    },
+    {
+      "crate": "tracing",
+      "version": "~0.1",
+      "purpose": "Structured logging and tracing",
+      "license": "MIT",
+      "justification": "More powerful than basic logging; supports spans and structured data; async-aware",
+      "trust": "Part of Tokio project, 40M+ downloads"
+    },
+    {
+      "crate": "tracing-subscriber",
+      "version": "~0.3",
+      "purpose": "Logging output configuration",
+      "license": "MIT",
+      "justification": "Configures tracing output to console/file with filtering",
+      "trust": "Part of Tokio project"
+    },
+    {
+      "crate": "ldap3",
+      "version": "~0.11",
+      "purpose": "LDAP protocol client",
+      "license": "MIT",
+      "justification": "Pure Rust LDAP client with async support; supports TLS, SASL, paging controls",
+      "trust": "Actively maintained, 500K+ downloads, used in production",
+      "notes": "May need custom paging control implementation for AD-specific features"
+    },
+    {
+      "crate": "windows",
+      "version": "~0.58",
+      "features": [
+        "Win32_System_Registry",
+        "Win32_Security",
+        "Win32_System_Threading",
+        "Win32_System_Rpc"
+      ],
+      "purpose": "Windows API bindings",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Official Microsoft Rust bindings for Windows APIs; replaces P/Invoke",
+      "trust": "Maintained by Microsoft, 20M+ downloads",
+      "platform": "windows-only"
+    },
+    {
+      "crate": "winreg",
+      "version": "~0.52",
+      "purpose": "Windows Registry access",
+      "license": "MIT",
+      "justification": "High-level Rust API for registry; simpler than raw windows-rs",
+      "trust": "1M+ downloads, well-maintained",
+      "platform": "windows-only"
+    },
+    {
+      "crate": "zip",
+      "version": "~2.1",
+      "features": [
+        "deflate"
+      ],
+      "purpose": "ZIP archive creation/extraction",
+      "license": "MIT",
+      "justification": "Pure Rust ZIP implementation; supports password protection (via 'aes-crypto' feature)",
+      "trust": "5M+ downloads, actively maintained"
+    },
+    {
+      "crate": "flate2",
+      "version": "~1.0",
+      "purpose": "DEFLATE compression",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Used by zip crate; standard compression library",
+      "trust": "30M+ downloads"
+    },
+    {
+      "crate": "dashmap",
+      "version": "~6.0",
+      "purpose": "Concurrent HashMap",
+      "license": "MIT",
+      "justification": "Lock-free concurrent map; replaces ConcurrentDictionary with similar performance",
+      "trust": "3M+ downloads, used in high-performance systems"
+    },
+    {
+      "crate": "chrono",
+      "version": "~0.4",
+      "purpose": "Date and time handling",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Most popular datetime library; handles timestamps for filenames and logs",
+      "trust": "50M+ downloads, de-facto standard"
+    },
+    {
+      "crate": "uuid",
+      "version": "~1.10",
+      "features": [
+        "v4"
+      ],
+      "purpose": "UUID generation (fallback for machine ID)",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Standard UUID library; cross-platform machine ID fallback",
+      "trust": "40M+ downloads"
+    },
+    {
+      "crate": "sysinfo",
+      "version": "~0.31",
+      "purpose": "System information (memory usage, process info)",
+      "license": "MIT",
+      "justification": "Cross-platform system stats; replaces Process.PrivateMemorySize64",
+      "trust": "10M+ downloads, actively maintained"
+    },
+    {
+      "crate": "nix",
+      "version": "~0.29",
+      "features": [
+        "user"
+      ],
+      "purpose": "Unix system calls (getuid, etc.)",
+      "license": "MIT",
+      "justification": "Linux/Unix identity and system APIs",
+      "trust": "20M+ downloads, standard Unix API bindings",
+      "platform": "unix-only"
+    },
+    {
+      "crate": "base64",
+      "version": "~0.22",
+      "purpose": "Base64 encoding/decoding",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Used for machine ID encoding and various AD data",
+      "trust": "100M+ downloads"
+    },
+    {
+      "crate": "lazy_static",
+      "version": "~1.5",
+      "purpose": "Static initialization (for global caches like StealthContext)",
+      "license": "MIT OR Apache-2.0",
+      "justification": "Safe static initialization; or use 'once_cell' as alternative",
+      "trust": "50M+ downloads, widely used"
+    }
+  ],
+  "risks_and_blockers": [
+    {
+      "risk": "SharpHoundCommonLib dependency",
+      "impact": "CRITICAL",
+      "description": "~5000 LOC of core AD logic in external library. Contains all processor implementations (ACL, Group, Computer, etc.) and LDAP utilities.",
+      "mitigation": "Create separate 'sharphound-common' Rust crate. Port incrementally, starting with core types and LDAP utils. Use trait-based architecture for processors.",
+      "effort": "HIGH (4-6 weeks for full port)"
+    },
+    {
+      "risk": "SharpHoundRPC dependency",
+      "impact": "CRITICAL",
+      "description": "~3000 LOC of Windows RPC/SMB/Registry APIs. Windows-only functionality.",
+      "mitigation": "Create 'sharphound-rpc' crate using windows-rs FFI. Some APIs may require manual bindings. Consider phased approach: implement most critical RPCs first (NetSessionEnum, NetWkstaUserEnum), defer others.",
+      "effort": "HIGH (3-5 weeks)"
+    },
+    {
+      "risk": "LDAP Active Directory specifics",
+      "impact": "HIGH",
+      "description": "ldap3 crate may not support all AD-specific features (paged results, range retrieval, security descriptor parsing).",
+      "mitigation": "Implement custom LDAP controls as needed. AD schema knowledge required. Test against real domain controllers.",
+      "effort": "MEDIUM (2-3 weeks)"
+    },
+    {
+      "risk": "Cross-platform compatibility",
+      "impact": "MEDIUM",
+      "description": "Most functionality is Windows-centric. Linux support limited to LDAP queries only (no RPC/SMB).",
+      "mitigation": "Use #[cfg(windows)] guards extensively. Provide Linux-compatible subset (LDAP-only collection). Document platform limitations clearly.",
+      "effort": "LOW (design decision, not technical blocker)"
+    },
+    {
+      "risk": "Performance parity",
+      "impact": "MEDIUM",
+      "description": "C# version uses 50 threads by default. Rust async may have different performance characteristics.",
+      "mitigation": "Use tokio with work-stealing scheduler. Benchmark against C# version. Tune thread pool and channel capacities. Likely to achieve equal or better performance.",
+      "effort": "LOW (tuning, not rewrite)"
+    },
+    {
+      "risk": "Testing without live AD environment",
+      "impact": "MEDIUM",
+      "description": "Many features require real Active Directory for proper testing.",
+      "mitigation": "Create mock LDAP server for unit tests. Use docker-based AD container for integration tests. Maintain test AD environment or use Azure AD DS for CI.",
+      "effort": "MEDIUM (test infrastructure)"
+    },
+    {
+      "risk": "Binary size and deployment",
+      "impact": "LOW",
+      "description": "Rust binaries with all dependencies may be larger than .NET merged exe.",
+      "mitigation": "Use release builds with LTO and strip. Consider UPX compression. Typical Rust binary: 5-15MB vs C# merged exe ~2-4MB. Acceptable tradeoff for no runtime dependency.",
+      "effort": "LOW (build config)"
+    }
+  ],
+  "implementation_phases": [
+    {
+      "phase": 1,
+      "name": "Foundation (Core Types & CLI)",
+      "files": [
+        "Enums.cs",
+        "Flags.cs",
+        "EnumerationDomain.cs",
+        "Options.cs",
+        "BasicLogger.cs"
+      ],
+      "deliverable": "Compilable binary with CLI parsing and logging; no functional collection yet",
+      "tests": [
+        "T001",
+        "T002"
+      ],
+      "duration_estimate": "1 week"
+    },
+    {
+      "phase": 2,
+      "name": "Context & Traits",
+      "files": [
+        "Context.cs",
+        "Links.cs",
+        "BaseContext.cs",
+        "Extensions.cs",
+        "JsonExtensions.cs"
+      ],
+      "deliverable": "Context infrastructure, trait definitions, utility functions",
+      "tests": [
+        "T003",
+        "T004",
+        "T005"
+      ],
+      "duration_estimate": "1-2 weeks"
+    },
+    {
+      "phase": 3,
+      "name": "Writers & Output",
+      "files": [
+        "BaseWriter.cs",
+        "CompStatusWriter.cs",
+        "JsonDataWriter.cs"
+      ],
+      "deliverable": "Output writers with JSON/CSV/ZIP support",
+      "tests": [
+        "T006",
+        "T007"
+      ],
+      "duration_estimate": "1 week"
+    },
+    {
+      "phase": 4,
+      "name": "Producers (File & Base)",
+      "files": [
+        "BaseProducer.cs",
+        "ComputerFileProducer.cs",
+        "StealthContext.cs",
+        "ClientHelpers.cs"
+      ],
+      "deliverable": "File-based producer working; channel pattern validated",
+      "tests": [
+        "T008",
+        "T017"
+      ],
+      "duration_estimate": "1 week"
+    },
+    {
+      "phase": 5,
+      "name": "LDAP Integration (CRITICAL)",
+      "files": [
+        "LdapProducer.cs",
+        "StealthProducer.cs"
+      ],
+      "deliverable": "LDAP queries working with paging and partitioning; stealth mode functional",
+      "tests": [
+        "T009",
+        "T010",
+        "T011",
+        "T018"
+      ],
+      "duration_estimate": "2-3 weeks",
+      "notes": "Requires ldap3 integration and AD-specific testing"
+    },
+    {
+      "phase": 6,
+      "name": "Runtime Coordination",
+      "files": [
+        "LDAPConsumer.cs",
+        "CollectionTask.cs",
+        "LoopManager.cs"
+      ],
+      "deliverable": "Producer-consumer orchestration; loop collection working",
+      "tests": [
+        "T012",
+        "T014"
+      ],
+      "duration_estimate": "2 weeks"
+    },
+    {
+      "phase": 7,
+      "name": "Output Pipeline",
+      "files": [
+        "OutputWriter.cs"
+      ],
+      "deliverable": "Complete output pipeline with ZIP creation and status updates",
+      "tests": [
+        "T013"
+      ],
+      "duration_estimate": "1 week"
+    },
+    {
+      "phase": 8,
+      "name": "Main Workflow",
+      "files": [
+        "SharpLinks.cs",
+        "Sharphound.cs"
+      ],
+      "deliverable": "End-to-end workflow working (without ObjectProcessors)",
+      "tests": [
+        "T015"
+      ],
+      "duration_estimate": "1 week"
+    },
+    {
+      "phase": 9,
+      "name": "Object Processors (CRITICAL - Depends on External Libs)",
+      "files": [
+        "ObjectProcessors.cs + SharpHoundCommonLib + SharpHoundRPC"
+      ],
+      "deliverable": "Full AD object processing with all collection methods",
+      "tests": [
+        "T016"
+      ],
+      "duration_estimate": "6-10 weeks",
+      "notes": "Requires porting SharpHoundCommonLib and SharpHoundRPC. This is the largest effort. Consider phased implementation by collection method."
+    },
+    {
+      "phase": 10,
+      "name": "Integration & Hardening",
+      "files": [
+        "All"
+      ],
+      "deliverable": "Production-ready binary with full test suite, CI, and documentation",
+      "tests": [
+        "All"
+      ],
+      "duration_estimate": "2-3 weeks"
+    }
+  ],
+  "total_effort_estimate": {
+    "core_application": "12-16 weeks",
+    "external_libraries": "7-11 weeks",
+    "total": "19-27 weeks (5-7 months)",
+    "notes": "Assumes 1 experienced Rust developer with AD/LDAP knowledge. External library porting is the critical path."
+  },
+  "success_criteria": [
+    "All 26 source files ported with functional parity",
+    "All 18 test cases passing",
+    "cargo build --release succeeds on Windows and Linux targets",
+    "cargo clippy reports no warnings",
+    "cargo audit reports no vulnerabilities",
+    "Binary runs on Windows Server 2016+ and Linux (LDAP-only mode)",
+    "DCOnly collection method fully functional (LDAP-only, no RPC)",
+    "All collection method fully functional (requires SharpHoundRPC port)",
+    "Output JSON format matches BloodHound 5.0.0 spec (DataVersion=6)",
+    "Performance within 20% of C# version (measured by objects/sec)",
+    "Memory usage comparable or lower than C# version",
+    "No unsafe code except in Windows FFI boundaries (minimized and audited)",
+    "Full documentation with examples and security considerations",
+    "CI pipeline with automated tests and security scans",
+    "Reproducible release builds with signed artifacts"
+  ]
+}
