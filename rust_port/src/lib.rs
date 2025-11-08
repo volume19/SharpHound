@@ -12,14 +12,17 @@
 //! # Modules
 //!
 //! - `client` - Core types, enums, and configuration flags
+//! - `cli` - Command-line argument parsing
 //! - `domain` - Domain enumeration types
 //! - `logging` - Logging infrastructure
 
+pub mod cli;
 pub mod client;
 pub mod domain;
 pub mod logging;
 
 // Re-export commonly used types
+pub use cli::Options;
 pub use client::{CollectionMethodOptions, Flags};
 pub use domain::EnumerationDomain;
 pub use logging::{BasicLogger, LogLevel};
