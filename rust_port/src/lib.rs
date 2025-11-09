@@ -18,6 +18,7 @@
 //! - `logging` - Logging infrastructure
 //! - `serialization` - JSON serialization utilities
 //! - `util` - Utility functions and extension traits
+//! - `writers` - Output writers for BloodHound data
 
 pub mod cli;
 pub mod client;
@@ -26,6 +27,7 @@ pub mod domain;
 pub mod logging;
 pub mod serialization;
 pub mod util;
+pub mod writers;
 
 // Re-export commonly used types
 pub use cli::Options;
@@ -35,3 +37,4 @@ pub use domain::EnumerationDomain;
 pub use logging::{BasicLogger, LogLevel};
 pub use serialization::{CacheSerializerSettings, Label};
 pub use util::{AsyncStreamExt, CollectionMethodExt, DnsNameResolver, HashMapExt};
+pub use writers::{BaseWriter, CompStatusWriter, CsvComputerStatus, JsonDataWriter, MetaTag};
