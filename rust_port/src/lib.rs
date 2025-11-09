@@ -16,12 +16,14 @@
 //! - `context` - Context implementations
 //! - `domain` - Domain enumeration types
 //! - `logging` - Logging infrastructure
+//! - `util` - Utility functions and extension traits
 
 pub mod cli;
 pub mod client;
 pub mod context;
 pub mod domain;
 pub mod logging;
+pub mod util;
 
 // Re-export commonly used types
 pub use cli::Options;
@@ -29,3 +31,4 @@ pub use client::{CollectionMethodOptions, Context, Flags, LdapConfig, Links};
 pub use context::BaseContext;
 pub use domain::EnumerationDomain;
 pub use logging::{BasicLogger, LogLevel};
+pub use util::{AsyncStreamExt, CollectionMethodExt, DnsNameResolver, HashMapExt};

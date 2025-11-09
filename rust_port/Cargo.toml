@@ -10,6 +10,7 @@ repository = "https://github.com/SpecterOps/SharpHound"
 [dependencies]
 # Async runtime and utilities
 tokio = { version = "1.40", features = ["full"] }
+tokio-stream = "0.1"
 async-trait = "0.1"
 
 # CLI parsing
