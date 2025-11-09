@@ -33,6 +33,9 @@ chrono = "0.4"
 # Collections
 dashmap = "6.0"
 
+# Random number generation (for jitter)
+rand = "0.8"
+
 # LDAP (will be added when needed)
 # ldap3 = "0.11"
 
