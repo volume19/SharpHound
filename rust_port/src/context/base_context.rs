@@ -120,6 +120,23 @@ impl BaseContext {
         }
     }
 
+    /// Create a BaseContext with default values for testing
+    ///
+    /// # Arguments
+    /// * `flags` - Configuration flags
+    ///
+    /// # Example
+    /// ```
+    /// use sharphound::{BaseContext, Flags};
+    ///
+    /// let ctx = BaseContext::new_for_test(Flags::default());
+    /// ```
+    pub fn new_for_test(flags: Flags) -> Self {
+        let logger = BasicLogger::new(0); // Silent logger for tests
+        let ldap_config = LdapConfig::default();
+        Self::new(logger, ldap_config, flags)
+    }
+
     /// Get machine-specific cache filename
     ///
     /// Generates a machine-specific identifier for the cache file.

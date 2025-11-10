@@ -16,6 +16,7 @@
 //! - `context` - Context implementations
 //! - `domain` - Domain enumeration types
 //! - `logging` - Logging infrastructure
+//! - `producers` - Data producers for AD enumeration
 //! - `serialization` - JSON serialization utilities
 //! - `util` - Utility functions and extension traits
 //! - `writers` - Output writers for BloodHound data
@@ -25,6 +26,7 @@ pub mod client;
 pub mod context;
 pub mod domain;
 pub mod logging;
+pub mod producers;
 pub mod serialization;
 pub mod util;
 pub mod writers;
@@ -35,6 +37,9 @@ pub use client::{CollectionMethodOptions, Context, Flags, LdapConfig, Links};
 pub use context::BaseContext;
 pub use domain::EnumerationDomain;
 pub use logging::{BasicLogger, LogLevel};
+pub use producers::{
+    BaseProducer, ComputerFileProducer, DirectoryObject, LdapProducer, StealthProducer,
+};
 pub use serialization::{CacheSerializerSettings, Label};
 pub use util::{AsyncStreamExt, CollectionMethodExt, DnsNameResolver, HashMapExt};
 pub use writers::{BaseWriter, CompStatusWriter, CsvComputerStatus, JsonDataWriter, MetaTag};
